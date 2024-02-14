@@ -5,14 +5,13 @@ local lastScriptID = 0
 RegisterNetEvent("DSRS:updateLocation", function(coords)
     local src = source
     playerList[src] = coords
-    print(playerList[src]);
 end)
 
 RegisterNetEvent("DSRS:registerScript", function(coords, distance, startc, endc, scriptName)
     if (coords.xyz and type(distance) == "number" and type(startc) == "string" and type(endc) == "string") then
         local scriptID = lastScriptID + 1
         local scriptData = {
-            coords = coords,
+            coords = vector3(coords.x, coords.y, coords.z),
             distance = distance,
             startc = startc,
             endc = endc
@@ -25,5 +24,21 @@ RegisterNetEvent("DSRS:registerScript", function(coords, distance, startc, endc,
         else
             print("DSRSCore: Failed to register a script! Please ensure the script passed all the REQUIRED values.");
         end
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        for source, coords in ipairs(playerList) do
+            for scriptID, scriptData in ipairs(registeredScripts) do
+                local distanceFromPlayer = #(coords - scriptData.coords);
+                if (distanceFromPlayer <= scriptData.distance) then
+                    TriggerClientEvent(scriptData.startc, source);
+                elseif (distanceFromPlayer > scriptData.distance) then
+                    TriggerClientEvent(scriptData.endc, source);
+                end
+            end
+        end
+        Wait(500);
     end
 end)

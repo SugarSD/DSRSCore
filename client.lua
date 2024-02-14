@@ -5,5 +5,4 @@ Citizen.CreateThread(function()
         TriggerServerEvent("DSRS:updateLocation", playerCoords);
         Wait(200)
     end
-end
-)
+end)
